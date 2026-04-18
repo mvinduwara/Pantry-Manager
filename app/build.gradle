@@ -55,11 +55,16 @@ dependencies {
     // Firebase Cloud Messaging (using the BOM approach)
     implementation platform('com.google.firebase:firebase-bom:32.7.0')
     implementation 'com.google.firebase:firebase-messaging'
-
-
+    
     def room_version = "2.6.1"
     implementation "androidx.room:room-runtime:$room_version"
     annotationProcessor "androidx.room:room-compiler:$room_version"
+
+    // Google Generative AI SDK
+    implementation("com.google.ai.client.generativeai:generativeai:0.7.0")
+
+    // Guava (Required by the Generative AI SDK for Java futures)
+    implementation("com.google.guava:guava:31.1-android")
 
     testImplementation libs.junit
     androidTestImplementation libs.ext.junit
