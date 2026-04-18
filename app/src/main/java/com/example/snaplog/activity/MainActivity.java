@@ -9,6 +9,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
+import androidx.annotation.OptIn;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.ExperimentalGetImage;
@@ -24,6 +25,8 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import com.example.snaplog.R;
 import com.example.snaplog.api.OpenFoodFactsApi;
+import com.example.snaplog.database.AppDatabase;
+import com.example.snaplog.database.PantryItem;
 import com.example.snaplog.model.ProductResponse;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.mlkit.vision.barcode.BarcodeScanner;
@@ -39,6 +42,7 @@ import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
+@OptIn(markerClass = ExperimentalGetImage.class)
 public class MainActivity extends AppCompatActivity {
 
     private static final int REQUEST_CODE_PERMISSIONS = 10;
@@ -144,7 +148,8 @@ public class MainActivity extends AppCompatActivity {
                     if (response.body().status == 1 && response.body().product != null) {
                         String productName = response.body().product.productName;
                         if (productName != null && !productName.isEmpty()) {
-                            runOnUiThread(() -> resultTextView.setText("Found: " + productName));
+                            runOnUiThread(() -> resultTextView.setText("Found & Saving: " + productName));
+                            saveToDatabase(barcode, productName);
                         } else {
                             runOnUiThread(() -> resultTextView.setText("Product found, but name is missing."));
                         }
@@ -159,6 +164,27 @@ public class MainActivity extends AppCompatActivity {
                 isFetching = false;
                 runOnUiThread(() -> resultTextView.setText("Network error: " + t.getMessage()));
             }
+        });
+    }
+
+
+    private void saveToDatabase(String barcode, String name) {
+        cameraExecutor.execute(() -> {
+            AppDatabase db = AppDatabase.getDatabase(getApplicationContext());
+            PantryItem existingItem = db.pantryItemDao().getItemByBarcode(barcode);
+
+            if (existingItem == null) {
+                long currentTime = System.currentTimeMillis();
+                long sevenDaysFromNow = currentTime + (7L * 24 * 60 * 60 * 1000);
+
+                PantryItem newItem = new PantryItem(barcode, name, currentTime, sevenDaysFromNow);
+                db.pantryItemDao().insert(newItem);
+
+                runOnUiThread(() -> Toast.makeText(MainActivity.this, name + " saved to Pantry!", Toast.LENGTH_SHORT).show());
+            } else {
+                runOnUiThread(() -> Toast.makeText(MainActivity.this, name + " is already in your Pantry.", Toast.LENGTH_SHORT).show());
+            }
+            lastScannedBarcode = "";
         });
     }
 
