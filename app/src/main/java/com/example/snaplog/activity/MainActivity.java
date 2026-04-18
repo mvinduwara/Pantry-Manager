@@ -5,6 +5,7 @@ import android.content.pm.PackageManager;
 import android.media.Image;
 import android.os.Bundle;
 import android.util.Log;
+import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 import androidx.activity.EdgeToEdge;
@@ -84,6 +85,12 @@ public class MainActivity extends AppCompatActivity {
         } else {
             ActivityCompat.requestPermissions(this, REQUIRED_PERMISSIONS, REQUEST_CODE_PERMISSIONS);
         }
+
+        Button viewPantryButton = findViewById(R.id.viewPantryButton);
+        viewPantryButton.setOnClickListener(v -> {
+            android.content.Intent intent = new android.content.Intent(MainActivity.this, InventoryActivity.class);
+            startActivity(intent);
+        });
     }
 
     @ExperimentalGetImage
