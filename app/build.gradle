@@ -72,8 +72,10 @@ dependencies {
     androidTestImplementation libs.ext.junit
     androidTestImplementation libs.espresso.core
 
-    implementation("com.google.ai.client.generativeai:generativeai-java:0.7.0")
+    implementation("com.google.ai.client.generativeai:generativeai:0.7.0")
     implementation("com.google.guava:guava:31.1-android")
+
+    implementation("org.reactivestreams:reactive-streams:1.0.4")
 
     // Add this for background task scheduling
     implementation("androidx.work:work-runtime:2.9.0")
