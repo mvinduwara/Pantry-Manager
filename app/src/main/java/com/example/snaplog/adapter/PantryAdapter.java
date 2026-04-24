@@ -53,4 +53,8 @@ public class PantryAdapter extends RecyclerView.Adapter<PantryAdapter.PantryView
             barcodeTextView = itemView.findViewById(R.id.itemBarcodeTextView);
         }
     }
+
+    public PantryItem getItemAt(int position) {
+        return items.get(position);
+    }
 }
