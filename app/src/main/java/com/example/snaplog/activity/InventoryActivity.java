@@ -51,8 +51,28 @@ public class InventoryActivity extends AppCompatActivity {
         databaseExecutor = Executors.newSingleThreadExecutor();
         loadInventory();
 
-        // Trigger the AI when the button is clicked
         generateRecipeButton.setOnClickListener(v -> generateRecipeWithAI());
+
+        new androidx.recyclerview.widget.ItemTouchHelper(new androidx.recyclerview.widget.ItemTouchHelper.SimpleCallback(0, androidx.recyclerview.widget.ItemTouchHelper.LEFT | androidx.recyclerview.widget.ItemTouchHelper.RIGHT) {
+            @Override
+            public boolean onMove(@androidx.annotation.NonNull RecyclerView recyclerView, @androidx.annotation.NonNull RecyclerView.ViewHolder viewHolder, @androidx.annotation.NonNull RecyclerView.ViewHolder target) {
+                return false;
+            }
+
+            @Override
+            public void onSwiped(@androidx.annotation.NonNull RecyclerView.ViewHolder viewHolder, int direction) {
+                int position = viewHolder.getAdapterPosition();
+                PantryItem itemToDelete = adapter.getItemAt(position);
+
+                databaseExecutor.execute(() -> {
+                    AppDatabase db = AppDatabase.getDatabase(getApplicationContext());
+                    db.pantryItemDao().delete(itemToDelete);
+                    loadInventory();
+                });
+
+                Toast.makeText(InventoryActivity.this, "Item consumed and removed!", Toast.LENGTH_SHORT).show();
+            }
+        }).attachToRecyclerView(recyclerView);
     }
 
     private void loadInventory() {
@@ -67,7 +87,6 @@ public class InventoryActivity extends AppCompatActivity {
         recipeResultTextView.setText("Chef Gemini is thinking...");
 
         databaseExecutor.execute(() -> {
-            // 1. Get current inventory
             AppDatabase db = AppDatabase.getDatabase(getApplicationContext());
             List<PantryItem> items = db.pantryItemDao().getAllItems();
 
@@ -76,7 +95,6 @@ public class InventoryActivity extends AppCompatActivity {
                 return;
             }
 
-            // 2. Build the exact prompt string
             StringBuilder promptBuilder = new StringBuilder("I have the following ingredients in my pantry: ");
             for (PantryItem item : items) {
                 promptBuilder.append(item.name).append(", ");
@@ -85,19 +103,15 @@ public class InventoryActivity extends AppCompatActivity {
 
             String finalPrompt = promptBuilder.toString();
 
-            // 3. Initialize the Gemini Model using the secure BuildConfig key
             GenerativeModel gm = new GenerativeModel("gemini-1.5-flash", BuildConfig.GEMINI_API_KEY);
             GenerativeModelFutures model = GenerativeModelFutures.from(gm);
 
-            // 4. Send the request
             Content content = new Content.Builder().addText(finalPrompt).build();
             ListenableFuture<GenerateContentResponse> response = model.generateContent(content);
 
-            // 5. Handle the result asynchronously
             Futures.addCallback(response, new FutureCallback<GenerateContentResponse>() {
                 @Override
                 public void onSuccess(GenerateContentResponse result) {
-                    // Update the UI with the generated recipe
                     runOnUiThread(() -> recipeResultTextView.setText(result.getText()));
                 }
 
