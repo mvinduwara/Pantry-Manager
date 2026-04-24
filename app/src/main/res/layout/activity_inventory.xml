@@ -3,13 +3,13 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#F5F5F5">
+    android:background="#F5F5F5"
+    android:padding="16dp">
 
     <TextView
         android:id="@+id/inventoryTitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="42dp"
         android:text="My Pantry"
         android:textSize="28sp"
         android:textStyle="bold"
@@ -22,7 +22,33 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_marginTop="16dp"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintHeight_percent="0.4"
+        app:layout_constraintBottom_toTopOf="@+id/generateRecipeButton"
         app:layout_constraintTop_toBottomOf="@id/inventoryTitle" />
+
+    <Button
+        android:id="@+id/generateRecipeButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="Ask Virtual Chef for a Recipe"
+        android:backgroundTint="#4CAF50"
+        app:layout_constraintTop_toBottomOf="@id/inventoryRecyclerView" />
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_marginTop="16dp"
+        app:layout_constraintTop_toBottomOf="@id/generateRecipeButton"
+        app:layout_constraintBottom_toBottomOf="parent">
+
+        <TextView
+            android:id="@+id/recipeResultTextView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="16sp"
+            android:textColor="#333333"
+            android:text="Your recipe will appear here..." />
+    </ScrollView>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
