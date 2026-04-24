@@ -103,7 +103,7 @@ public class MainActivity extends AppCompatActivity {
                 ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.POST_NOTIFICATIONS}, 101);
             }
         }
-        
+
         PeriodicWorkRequest alertWorkRequest = new PeriodicWorkRequest.Builder(PantryWorker.class, 24, TimeUnit.HOURS)
                 .build();
 
