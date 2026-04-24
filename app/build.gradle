@@ -81,4 +81,7 @@ dependencies {
     // Change this line to include "-java"
     implementation("com.google.ai.client.generativeai:generativeai-java:0.7.0")
     implementation("com.google.guava:guava:31.1-android")
+
+    // Add this for background task scheduling
+    implementation("androidx.work:work-runtime:2.9.0")
 }
