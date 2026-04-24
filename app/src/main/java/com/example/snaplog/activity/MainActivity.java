@@ -3,6 +3,7 @@ package com.example.snaplog.activity;
 import android.Manifest;
 import android.content.pm.PackageManager;
 import android.media.Image;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.Button;
@@ -29,6 +30,7 @@ import com.example.snaplog.api.OpenFoodFactsApi;
 import com.example.snaplog.database.AppDatabase;
 import com.example.snaplog.database.PantryItem;
 import com.example.snaplog.model.ProductResponse;
+import com.example.snaplog.worker.PantryWorker;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.mlkit.vision.barcode.BarcodeScanner;
 import com.google.mlkit.vision.barcode.BarcodeScanning;
@@ -42,6 +44,10 @@ import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
+import androidx.work.ExistingPeriodicWorkPolicy;
+import androidx.work.PeriodicWorkRequest;
+import androidx.work.WorkManager;
+import java.util.concurrent.TimeUnit;
 
 @OptIn(markerClass = ExperimentalGetImage.class)
 public class MainActivity extends AppCompatActivity {
@@ -91,6 +97,21 @@ public class MainActivity extends AppCompatActivity {
             android.content.Intent intent = new android.content.Intent(MainActivity.this, InventoryActivity.class);
             startActivity(intent);
         });
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.POST_NOTIFICATIONS}, 101);
+            }
+        }
+        
+        PeriodicWorkRequest alertWorkRequest = new PeriodicWorkRequest.Builder(PantryWorker.class, 24, TimeUnit.HOURS)
+                .build();
+
+        WorkManager.getInstance(this).enqueueUniquePeriodicWork(
+                "PantryAlerts",
+                ExistingPeriodicWorkPolicy.KEEP,
+                alertWorkRequest
+        );
     }
 
     @ExperimentalGetImage
