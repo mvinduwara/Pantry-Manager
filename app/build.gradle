@@ -68,17 +68,10 @@ dependencies {
     implementation "androidx.room:room-runtime:$room_version"
     annotationProcessor "androidx.room:room-compiler:$room_version"
 
-    // Google Generative AI SDK
-    implementation("com.google.ai.client.generativeai:generativeai:0.7.0")
-
-    // Guava (Required by the Generative AI SDK for Java futures)
-    implementation("com.google.guava:guava:31.1-android")
-
     testImplementation libs.junit
     androidTestImplementation libs.ext.junit
     androidTestImplementation libs.espresso.core
 
-    // Change this line to include "-java"
     implementation("com.google.ai.client.generativeai:generativeai-java:0.7.0")
     implementation("com.google.guava:guava:31.1-android")
 
